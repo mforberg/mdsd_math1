@@ -1,0 +1,29 @@
+grammar org.xtext.example.math_interpreter.Math with org.eclipse.xtext.common.Terminals
+
+generate math "http://www.xtext.org/example/math_interpreter/Math"
+
+MathExp:
+	'calculate' exp=Exp
+;
+
+Exp: // Illegal due to left recursion
+	AdditionSubtraction
+;
+
+AdditionSubtraction returns Exp:
+	MultiplicationDivision ({Exp.left=current} operator=AdditionSubtractionOperator right=MultiplicationDivision)*
+;
+
+MultiplicationDivision returns Exp:
+	Primary({PriorityOperation.left=current} operator=MultiplicationDivisionOperator right=Primary)*
+;
+
+AdditionSubtractionOperator: {Addition} '+' | {Subtraction} '-';
+MultiplicationDivisionOperator: {Multiplication} '*' | {Division} '/';
+
+Primary: Num | Parenthesis;
+
+
+Parenthesis: '(' exp=Exp ')';
+
+Num: value=INT;
